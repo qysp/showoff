@@ -5,19 +5,18 @@ import Koa from 'koa';
 import Router from '@koa/router';
 import serve from 'koa-static';
 
-const CWD = CWD;
+const CWD = process.cwd();
 const SLIDES_DIR = join(CWD, 'slides');
 
 const app = new Koa();
 
 const router = new Router()
-  .redirect('/', '/index.html')
   .get('/slides', list)
   .get('/slides/:slide', compile);
 
 app
   .use(router.routes())
-  .use(serve(join(CWD, 'public')))
+  .use(serve(join(CWD, 'public'), { index: 'index.html' }))
   .use(serve(join(CWD, 'node_modules', 'milligram', 'dist')))
   .use(serve(join(CWD, 'node_modules', 'normalize.css')))
   .use(serve(join(CWD, 'node_modules', 'alpinejs', 'dist')))
