@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "node --experimental-modules server.mjs"
+    "start": "node --experimental-modules server/app.mjs"
   },
   "dependencies": {
     "@koa/router": "^8.0.8",

@@ -1,3 +1,17 @@
 #app {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#toc {
+  display: grid;
+  flex-grow: 1;
+  align-content: center;
+  text-align: center;
+}
+
+.toc-item {
+  list-style-type: none;
+  cursor: pointer;
 }

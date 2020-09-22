@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="/normalize.css">
   <link rel="stylesheet" href="/style.css">
   <script src="/index.js"></script>
-  <!-- Use alpine-ie11.js for Internet Explorer support. -->
   <script src="/alpine.js"></script>
 </head>
 <body
@@ -19,21 +18,26 @@
   x-init="fetchSlides()"
   @keydown.escape="selected = null"
   @keydown.arrow-left="previousSlide()"
-  @keydown.arrow-right="nextSlide()">
-  <main id="app">
-    <p x-show="slidesLength === 0">Seems like you don't have any slides.</p>
-    <p x-show="slidesLength === null">Loading ...</p>
-    <template x-if="slidesLength > 0 && selected === null">
-      <div class="fragment">
+  @keydown.arrow-right="nextSlide()"
+>
+  <main id="app" class="container">
+    <template x-if="selected === null">
+      <div id="toc">
         <h1>Table of contents</h1>
-        <ul>
-          <template x-for="(slide, index) in slides" :key="slide">
-            <li
-              x-text="getSlideTitle(slide)"
-              @click="changeSlide(index)">
-            </li>
-          </template>
-        </ul>
+        <hr />
+        <p x-show="slidesLength === 0">Seems like you don't have any slides.</p>
+        <p x-show="slidesLength === null">Loading ...</p>
+        <template x-if="slidesLength > 0">
+          <ul>
+            <template x-for="(slide, index) in slides" :key="slide">
+              <li
+                class="toc-item"
+                x-text="getSlideTitle(slide)"
+                @click="changeSlide(index)"
+              ></li>
+            </template>
+          </ul>
+        </template>
       </div>
     </template>
     <template x-if="selected !== null">
