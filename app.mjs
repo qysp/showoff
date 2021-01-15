@@ -1,13 +1,15 @@
-import { readFile, readdir } from 'fs/promises';
-import { join } from 'path';
+import { readFile, readdir, stat } from 'fs/promises';
+import { join, isAbsolute, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import marked from 'marked';
 import Koa from 'koa';
 import Router from '@koa/router';
 import serve from 'koa-static';
 
-const ROOT = process.cwd();
+const ROOT = dirname(fileURLToPath(import.meta.url));
 const NODE_MODULES = join(ROOT, 'node_modules');
-const SLIDES_DIR = join(ROOT, 'slides');
+const [,, dir = 'slides'] = process.argv;
+const SLIDES_DIR = isAbsolute(dir) ? dir : join(process.cwd(), dir);
 
 const app = new Koa();
 
@@ -41,17 +43,18 @@ async function list(ctx) {
  * @param {Koa.Context} ctx
  */
 async function compile(ctx) {
-  let compiled = null;
+  const filepath = join(SLIDES_DIR, ctx.params.slide);
+  if (!/^[^\/\\]+\.md$/.test(ctx.params.slide) || !(await fileExists(filepath))) {
+    ctx.status = 400;
+    return;
+  }
   try {
-    const content = await readFile(join(SLIDES_DIR, ctx.params.slide), {
-      encoding: 'utf-8',
-    });
-    compiled = await markedWrapper(content.toString());
+    const content = await readFile(filepath, { encoding: 'utf-8' });
+    ctx.body = await markedWrapper(content.toString());
   } catch (error) {
     console.error(error);
+    ctx.status = 500;
   }
-
-  ctx.body = compiled;
 }
 
 /**
@@ -65,4 +68,17 @@ function markedWrapper(src) {
       return error ? reject(error) : resolve(result);
     });
   });
+}
+
+/**
+ * Utility to check if a path exists and is a file.
+ * @param {string} path
+ * @returns {Promise<boolean>}
+ */
+async function fileExists(path) {
+  try {
+    const stats = await stat(path);
+    return stats.isFile();
+  } catch (error) {}
+  return false;
 }
